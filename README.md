@@ -15,9 +15,7 @@ Personal Portfolio
 
   <div class="section projects">
     <h2>Projects</h2>
-    <a href="https://github.com/yourusername/BNPL-analysis">📌 BNPL Financial Risk Analysis</a>
-    <a href="https://github.com/yourusername/job-scraper">📌 Job Postings Web Scraper (BeautifulSoup)</a>
-    <a href="https://github.com/yourusername/japanese-study-app">📌 Japanese Vocabulary Study Tool</a>
+    <a href="https://github.com/elizabethanneTMU820/CIND820_BNPL">📌 BNPL Financial Risk Analysis</a>
   </div>
 
   <div class="section">
