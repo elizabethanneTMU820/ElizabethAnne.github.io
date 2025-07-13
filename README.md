@@ -3,20 +3,9 @@ Personal Portfolio
 <!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Your Name | Data Analyst</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2em; background: #f9f9f9; }
-    h1, h2 { color: #333; }
-    .section { margin-bottom: 2em; }
-    a { color: #0066cc; text-decoration: none; }
-    .projects a { display: block; margin-top: 0.5em; }
-  </style>
-</head>
+
 <body>
-  <h1>Your Name</h1>
+  <h1>Elizabeth Anne E.</h1>
   <p>📍 Ottawa, Canada | 💻 Data Analyst | 📊 Python • R Programming • SQL • Power BI • Tableau</p>
 
   <div class="section">
