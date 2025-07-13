@@ -23,7 +23,6 @@ Personal Portfolio
   <div class="section">
     <h2>Contact</h2>
     <p>Available at: eaesnard @ gmail . com</p>
-    <p>LinkedIn: <a href="https://linkedin.com/in/yourusername">linkedin.com/in/yourusername</a></p>
   </div>
 </body>
 </html>
