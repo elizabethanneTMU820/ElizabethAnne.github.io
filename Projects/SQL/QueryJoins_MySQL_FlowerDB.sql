@@ -1,6 +1,8 @@
 #The following was performed in MySQL Workbench, with a pre-defined, pre-populated database provided by Toronto's Metropolitan University's
 #Chang School of Continuing Education. 
 
+#Run some standard queries
+	
 SELECT * FROM flowers;
 
 SELECT * FROM flowers
@@ -30,7 +32,7 @@ SELECT * FROM flowershopinventory
 WHERE QuantityInStock BETWEEN 10 AND 20
 ORDER BY ShopID;
 
-#Running the script populated the database and tables, but there are no key pairs. 
+#Running the forward engineering script populated the database and tables, but there are no key pairs. 
 
 ALTER TABLE flowers 
 ADD constraint fk_family_id FOREIGN KEY(FamilyID)
@@ -47,6 +49,7 @@ ADD CONSTRAINT fk_customers_shops FOREIGN KEY (ShopID) REFERENCES shops (ShopID)
 #Run join queries, nested queries
 
 #Finding Spring time flowers and their family name
+	
 SELECT Flo.FlowerID, Fam.FamilyID, Fam.FamilyName, Flo.FlowerName, Flo.Season
 FROM flowers as Flo
 JOIN
