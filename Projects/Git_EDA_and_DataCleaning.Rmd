@@ -1,0 +1,242 @@
+---
+title: "Git_EDA_Data_Cleaning"
+output: html_document
+date: "2025-06-17"
+author: Elizabeth Esnard
+---
+
+Load the raw data into a variable
+
+```{r}
+loan_working_copy <- read.csv("C:/Users/lizes/Documents/TMU - Chang School/CIND820/dataset bnpl/loan_working_copy.csv")
+```
+
+Check the summary to get a feel of the data.
+
+```{r}
+summary(loan_working_copy)
+```
+
+Confirm the number of rows in the raw data
+
+```{r}
+nrow(loan_working_copy)
+```
+
+Confirm the feature names
+
+```{r}
+colnames(loan_working_copy)
+```
+
+Filter the raw data into a subset that simulates BNPL purchase amounts.
+
+```{r}
+BNPL_clients <- loan_working_copy[(loan_working_copy$loan_amnt <= 3500), ]
+nrow(BNPL_clients)
+```
+
+**Identifying the Target Variable.**
+
+First, confirm all possible categories in the target variable feature.
+
+```{r}
+unique(BNPL_clients$loan_status)
+```
+
+We'll change all the categories into the two desired targets; solvent and default.
+
+```{r}
+library(dplyr)
+
+BNPL_clients$loan_status <- recode(BNPL_clients$loan_status, "Current" = "solvent", "Fully Paid" = "solvent", "In Grace Period" = "solvent", "Late (16-30 days)" = "default")
+
+BNPL_clients$loan_status <- recode(BNPL_clients$loan_status, "Late (31-120 days)" = "default", "Charged Off" = "default", "Default" = "default")
+```
+
+Confirm the distribution of the target variable. Both in a standard way (barplot function) and with a package to clean up the plot.
+
+```{r}
+barplot((table(BNPL_clients$loan_status)))
+```
+To add some customization on axis labels, we'll plot again with ggplot2
+```{r}
+library(ggplot2)
+
+ggplot(BNPL_clients, aes(loan_status)) +
+  geom_bar(fill = "steelblue") +
+  labs(title = "Distribution Of Target Variable",
+       x = "Category",
+       y = "Count") +
+  theme_minimal()
+```
+
+There is a clear imbalance of the target variable, so there will be SMOTE oversampling to assist in the modeling.
+
+Next, let's confirm the class type of all the features.
+
+```{r}
+sapply(BNPL_clients, class)
+
+column_types <- data.frame(
+  column = colnames(BNPL_clients),
+  class = sapply(BNPL_clients, class)
+)
+```
+
+Although there are a number of integer and/or numeric values, not all are truly numeric. Exploring the dataset in a spreadsheet, it's clear these values act as categories (e.g. 0 = no, 1 = yes) so through human logic I identified the true numeric features that summary statistics will reveal insightful information.
+
+```{r}
+BNPL_numeric <- BNPL_clients[c('loan_amnt', 'int_rate', 'monthly_payment', 'annual_inc', 'total_dti', 'tot_coll_amt', 'tot_cur_bal', 'credit_limit')]
+
+summary(BNPL_numeric)
+```
+There is a clear outlier with the max income being 7,000,000 despite the max loan amount being set to $3500. Let's check the distribution of the annual income feature
+
+```{r}
+boxplot(BNPL_clients$annual_inc)
+
+```
+The distribution is so skewed, we hardly see the box plot. 
+Let's move to ggplot2 for more control.
+
+```{r}
+#install.packages("scales")
+library(scales)
+library(ggplot2)
+
+ggplot(BNPL_clients, aes(y=annual_inc)) +
+  geom_boxplot(outlier.colour = "blue", outlier.shape = 16, 
+               outlier.size = 3, notch = FALSE) +
+  scale_y_continuous(
+    limits = c(0, 7000000),
+    labels = scales::comma
+  )
+```
+As we can clearly see, the outliers for a reasonable annual income are off the charts. 
+As a test, let's calculate the quartiles and limit to the 3rd quartile to inspect the distribution
+```{r}
+quantile(BNPL_clients$annual_inc)
+```
+
+
+```{r}
+library(ggplot2)
+
+BNPL_anninc_3rdQ <- BNPL_clients[(BNPL_clients$annual_inc <= 67000),]
+
+ggplot(BNPL_anninc_3rdQ, aes(y=annual_inc)) +
+  geom_boxplot(outlier.colour = "blue", outlier.shape = 16, 
+               outlier.size = 3, notch = FALSE) +
+  scale_y_continuous(
+    limits = c(0, 100000),
+    labels = scales::comma
+  )
+```
+```{r}
+nrow(BNPL_anninc_3rdQ)
+```
+Reducing the annual income to the 3rd quartile has a better distribution than previously seen, but reduces the number of observations to under 45,000. 
+So balance out annual income, we'll set the max of annual income to $100,000. 
+This level of income is likely to still engage in BNPL services.
+
+```{r}
+BNPL_clients <- BNPL_clients[(BNPL_clients$annual_inc <= 100000),]
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(BNPL_clients, aes(y=annual_inc)) +
+  geom_boxplot(outlier.colour = "blue", outlier.shape = 16, 
+               outlier.size = 3, notch = FALSE) +
+  scale_y_continuous(
+    limits = c(0, 100000),
+    labels = scales::comma
+  )
+```
+
+**Identifying Missing Values**
+
+Now to identify any missing or null values that could affect models.
+
+```{r}
+colSums(is.na.data.frame(BNPL_clients))
+
+```
+
+```{r}
+head(unique(BNPL_clients$emp_title), 20)
+```
+
+As seen through the unique function, as well as visual confirmation when browsing the data as a spreadsheet, the emp_title feature cannot easily be grouped or categorized. emp_title will not greatly contribute to model prediction, and will be removed from the working dataset.
+
+```{r}
+count(BNPL_clients[c((BNPL_clients$emp_title == ""),(BNPL_clients$emp_title == " ")), ])
+```
+
+R's is.na function is not identifying some null / missing values in emp_length and emp_title, which is why EDA was also performed in Python which came back with 7256 and 7812 respectively. Using the count function and sub-setting for specific empty cells ("") or single spaces (" ") returned the correct number of missing values in emp_length.
+
+```{r}
+nrow(BNPL_clients[BNPL_clients$loan_status == 'default',])
+
+nrow(BNPL_clients[BNPL_clients$loan_status == 'solvent',])
+
+nrow(BNPL_clients[is.na(BNPL_clients$total_dti) & BNPL_clients$loan_status == 'solvent', ])
+```
+
+Confirming is.na on total_dti, there are truly 36 observations with missing values in said feature.
+
+```{r}
+#remove 36 observations with total_dti missing
+BNPL_clients <- BNPL_clients[!(is.na(BNPL_clients$total_dti) & BNPL_clients$loan_status == 'solvent'), ]
+
+#remove emp_title column
+BNPL_clients <- subset(BNPL_clients, select = -c(emp_title))
+
+#replace NA values in emp_length
+BNPL_clients$emp_length[BNPL_clients$emp_length == ' '] <- "5 years"
+BNPL_clients$emp_length[(BNPL_clients$emp_length == 'n/a')] <- "5 years"
+count(BNPL_clients[c((BNPL_clients$emp_title == ""),(BNPL_clients$emp_title == " ")), ])
+```
+
+Quickly we will check the distribution of emp_length with the filled in NA values.
+
+```{r}
+#barplot of emp_length distribution
+
+#order the categories as factors so '10+ years" is at the end of the chart
+BNPL_clients$emp_length <- factor(
+  BNPL_clients$emp_length,
+  levels = c("< 1 year", "1 year", "2 years", "3 years", "4 years", "5 years", "6 years", "7 years", "8 years", "9 years", "10+ years"),
+  ordered = TRUE
+)
+
+ggplot(BNPL_clients, aes(emp_length)) +
+  geom_bar(fill = "steelblue") +
+  labs(title = "Distribution Of Employment Length Variable",
+       x = "Category",
+       y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+#barplot of loan_amount
+ggplot(BNPL_clients, aes(x = loan_amnt)) + geom_histogram() +
+  geom_density()
+```
+
+The data cleaning is now complete and can be exported.
+
+```{r}
+#export the file to working directory.
+
+#install.packages("openxlsx")
+library(openxlsx)
+
+write.xlsx(BNPL_clients, "clean_BNPL_clients.xlsx", rowNames = FALSE)
+```
+
+```{r}
+write.csv(BNPL_clients, "clean_BNPL_clients.csv", row.names = FALSE)
+```
