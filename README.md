@@ -18,6 +18,7 @@ Personal Portfolio
     <a href="https://github.com/elizabethanneTMU820/ElizabethAnne.github.io/blob/main/Projects/BNPL_Project.ipynb">📌 BNPL Financial Risk Analysis</a><br>
     <a href="https://github.com/elizabethanneTMU820/ElizabethAnne.github.io/tree/main/Projects/SQL">🔍 SQL Query and Database Creation Samples through MySQL</a><br>
     <a href="https://github.com/elizabethanneTMU820/ElizabethAnne.github.io/tree/main/Projects/R"> ®️ R Programming Samples in RStudio </a><br>
+    <a href="https://github.com/elizabethanneTMU820/ElizabethAnne.github.io/tree/main/Projects/Spark"> 🎇 Spark and Big Data Samples in PySpark </a><br>
   </div>
 
   <div class="section">
