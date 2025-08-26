@@ -1,8 +1,7 @@
-*CIND119 D30;
-*Elizabeth Esnard;
-*Assignment 1;
+*The dataset contains information about various cardiovascular disease indicators for patients;
+*with 13 numerical/categorical attributes and 1 binary target attribute indicating the presence or absence of heart disease;
 
-*Question 1;
+*Question 1 Read the file in SAS and display the contents, print only the first 10 observations;
 proc import 
 out = heart
 datafile = '/home/u64024635/CIND119/Assignment 1/heart.csv'
@@ -13,13 +12,13 @@ run;
 proc print data = heart (obs = 10);
 run;
 
-*Question 2;
+*Question 2 Perform basic Data analysis using;
 proc means data = heart;
 CLASS sex cp fbs restecg exang slope thal;
 VAR age trestbps chol thalach oldpeak ca target; 
 run;
 
-*Question 3;
+*Question 3 Apply standardization to the numerical attributes and print the data;
 proc stdize 
 data = heart
 out = stan_hearts
@@ -30,7 +29,8 @@ run;
 proc print data = stan_hearts (obs = 10);
 run;
 
-*Question 4;
+*Question 4 Apply k-means clustering. Scatter plot cluster labels to visualize and compare with the original data labels;
+*Choose the best K value based on the RMS Std. Deviation.;
 %macro myFastClus;
 	%do k=2 %to 5;
 		title 'Clusters and their' &k 'Means';
