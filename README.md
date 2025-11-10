@@ -15,7 +15,7 @@ Personal Portfolio
 
   <div class="section projects">
     <h2>Projects</h2>
-    <a href="https://github.com/elizabethanneTMU820/ElizabethAnne.github.io/blob/main/Projects/BNPL_Project.ipynb">📌 BNPL Financial Risk Analysis</a><br>
+    <a href="https://github.com/elizabethanneTMU820/ElizabethAnne.github.io/tree/main/Projects/BNPL">📌 BNPL Financial Risk Analysis</a><br>
     <a href="https://github.com/elizabethanneTMU820/ElizabethAnne.github.io/tree/main/Projects/XML_DataCleaning">🧼 XML Data Cleaning for Speedrun Data </a><br>
     <a href="https://github.com/elizabethanneTMU820/ElizabethAnne.github.io/tree/main/Projects/SQL">🔍 SQL Query and Database Creation Samples through MySQL</a><br>
     <a href="https://github.com/elizabethanneTMU820/ElizabethAnne.github.io/tree/main/Projects/R"> ®️ R Programming Samples in RStudio </a><br>
