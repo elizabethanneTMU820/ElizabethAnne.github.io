@@ -1,0 +1,141 @@
+//Question 1: Find all flowers that are red and bloom in summer.
+
+db["flowers"].find({Color: "Red", Season:"Summer"})
+
+//Question 2: Find all shops located in Vancouver. 
+
+db["shops"].find({Location: "Vancouver"})
+
+
+//Question 3: Find customers in the same city as the shop locations. 
+db.customers.aggregate([
+  // Lookup to join customers cities with shop locations
+  {
+    $lookup: {
+      from: "shops",
+      localField: "City",
+      foreignField: "Location",
+      as: "City_Shop"
+    }
+  },
+  // Unwind the array 
+  {
+    $unwind: "$City_Shop"
+  },
+  // Match Customer City and Shop Location 
+  {
+    $match: {
+      $expr : {
+        $eq : ["$City_Shop.Location", "$City"]}
+    }
+  },
+  {
+    $project: {
+    CustomerName: 1,
+    City: 1,
+    "City_Shop.ShopID": 1,
+    "City_Shop.Location": 1
+  }
+  }
+])
+
+db.customers.updateMany({}, [
+  {
+    $set: {
+      City: {
+        $trim: {
+          input: {
+            $arrayElemAt: [
+              { $split: ["$Address", ","] },
+              1
+            ]
+          }
+        }
+      }
+    }
+  }
+]);
+
+
+//Question 4: Find all flowers that bloom in the spring but are not part of the Asteraceae family. 
+
+db.flowers.aggregate([
+  // Lookup to join flowers with their respective families
+  {
+    $lookup: {
+      from: "families",
+      localField: "FamilyID",
+      foreignField: "FamilyID",
+      as: "Flower_Fams"
+    }
+  },
+  // Unwind the array 
+  {
+    $unwind: "$Flower_Fams"
+  },
+  // Match Flower-Family ID and Family ID 
+  {
+    $match: {
+      $expr : {
+        $and : [
+        {$eq : ["$Flower_Fams.FamilyID", "$FamilyID"]},
+        {$eq : ["$Season", "Spring"]},
+        {$ne : ["$Flower_Fams.FamilyID", 1]}
+        ]
+    }
+  }
+  },
+  {
+    $project: {
+    FlowerName: 1,
+    Color: 1,
+    Season: 1
+    "Flower_Fams.FamilyID": 1
+  }
+  }
+])
+
+//Question 5: Find the customers with the most orders.
+
+db.customers.aggregate([
+  // Lookup to join customers with their respective orders
+  {
+    $lookup: {
+      from: "orders",
+      localField: "CustomerID",
+      foreignField: "CustomerID",
+      as: "CustomerOrders"
+    }
+  },
+  // Unwind the array 
+  {
+    $unwind: "$CustomerOrders"
+  },
+  // Match Customer IDs across the collections; count the orders
+  {
+    $match: {
+      $expr : {
+        $eq : ["$CustomerOrders.CustomerID", "$CustomerID"]
+    }
+  }
+  },
+  {
+    $group: {
+      _id: "$CustomerID",
+      Ordercount: {$sum : 1}  
+    }
+  },
+  {
+    $sort : {Ordercount : -1}
+  },
+  {
+    $limit: 1
+  },
+  {
+    $project: {
+    CustomerID: 1,
+    CustomerName: "$_id.CustomerName",
+    Ordercount: 1
+  }
+  }
+])
